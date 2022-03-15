@@ -7,7 +7,16 @@ from timeit import default_timer as timer
 from tkinter import *
 import numpy as np
 import matplotlib.pyplot as plt
-#hello
+from PSO import *
+
+W = 0.5
+c1 = 0.8
+c2 = 0.9
+num_iter = 50
+n_particles = 30
+target = 'Hello World!'
+target_error = 0.000001
+
 def run(ga, population, buffer, args1, esize):
     start_qt = time.time()  # the start time of clock ticks
     start_elapsed = timer()  # the start time of elapsed
@@ -61,6 +70,25 @@ def GArun(cross_type):
     buffer = pop_beta
     run(ga, population, buffer, args1, esize)
 
+def run_PSO():
+    search = Swarm('Hello World!', target_error, n_particles)
+    particles_vec = [Particle() for _ in range(search.n_particles)]
+    search.particles = particles_vec
+
+    iteration = 0
+    while(iteration < num_iter):
+        search.set_pbest()
+        search.set_gbest()
+
+        if (abs(search.gbest_val - search.target) <= search.target_error):
+            break
+
+        search.move_swarm()
+        iteration += 1
+
+
+    print("The best solution is: ", search.gbest_pos, " in n_iterations: ", iteration)
+
 
 def get_input():
     popsize = int(ENTRIES[0].get())
@@ -102,7 +130,7 @@ if __name__ == '__main__':
     #e3.grid(row=2, column=1)
     #e4.grid(row=3, column=1)
     #e5.grid(row=4, column=1)
-    Button(root, text="Run Genetic Algorithm", command=single, bg='#3c3f41', fg='#a9b7c6', bd=0,
+    Button(root, text="Run Genetic Algorithm", command=run_PSO, bg='#3c3f41', fg='#a9b7c6', bd=0,
            font=("JetBrains Mono", 18)).grid(row=4, column=2, padx=10, pady=10)
     #Button(root, text="Single Point Crossover", command=GArun("Single"), bg='#3c3f41', fg='#a9b7c6', bd=0,font=("JetBrains Mono", 18)).grid(row=9, padx=10,pady=10)
     Button(root, text="Two Point Crossover", command=two, bg='#3c3f41', fg='#a9b7c6', bd=0,font=("JetBrains Mono", 18)).grid(row=10, padx=10,pady=10)
