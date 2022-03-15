@@ -7,7 +7,7 @@ from timeit import default_timer as timer
 from tkinter import *
 import numpy as np
 import matplotlib.pyplot as plt
-
+#hello
 def run(ga, population, buffer, args1, esize):
     start_qt = time.time()  # the start time of clock ticks
     start_elapsed = timer()  # the start time of elapsed
