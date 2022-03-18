@@ -1,6 +1,9 @@
 import math
 import sys
 
+import numpy
+import numpy as np
+
 from Arguments import *
 from Struct import *
 from Functions import  *
@@ -127,6 +130,22 @@ class Genetic5:
         avg = self.calc_avg_fitness(population)
         sd = self.calc_SD(population, avg)
         return 1 + (population[i].fitness - avg) / 2 * sd
+
+    def SUS(self, population, esize):
+        parent = self.args.GA_POPSIZE - esize
+        fitness = [-1]
+        max_fit = max(gene.fitness for gene in population)
+        for i in range(len(population)):
+            fitness.append(max_fit - population[i].fintess)
+        fitness = numpy.array(fitness)
+        total1 = fitness.total()
+        total2 = total1[-1]
+        forward = int(total2 / parent)
+        begin = random.randrange(forward)
+        selected_gene = np.arange(begin, total2, forward)
+        selected_pop = np.searchsorted(total1, selected_gene)
+        return [population[gene] for gene in selected_pop]
+
 
     def tournamentSelection(self, population):
         best = None

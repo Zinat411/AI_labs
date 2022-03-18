@@ -5,6 +5,7 @@ from Struct import *
 from Functions import *
 from MinimalConflicts import MinimalConflicts
 from Nqueens import NQueens
+from PSO import *
 from timeit import default_timer as timer
 from tkinter import *
 import numpy as np
