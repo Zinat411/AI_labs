@@ -56,6 +56,96 @@ def bull_hits(population: list[Struct], args1): # this function implement bull h
                      break
               new_fitness += 50 #if the letter dosen't exist in the target string give it heavy penalty
        population[i].fitness = new_fitness
+def is_age(gene):#function to check if the gene in the appropriate range of age
+    if 2 <= gene.age <= 30:
+        return 1
+    else:
+        return 0
+
+def pmx(perm1, perm2):
+    str_size = len(perm1)
+    pmx = randint(0, str_size-1)
+    index1 = perm1[pmx]
+    index2 = perm2[pmx]
+    for i in range(str_size):
+        if perm1[i] == index2:
+            perm1[i], perm1[pmx] = index1, perm1[i]
+    for i in range(str_size):
+        if perm2[i] == index1:
+            perm2[i], perm2[pmx] = index2, perm2[i]
+
+    return [perm1, perm2]
+
+def cx(perm1, perm2):
+    size = len(perm1)
+    child1 = Struct("", 0)
+    child2 = Struct("", 0)
+    for i in range(size):#initilize the permutation of each  child with -1
+        child1.permut[i] = -1
+        child2.permut[i] = -1
+    first = randint(1, 2)#choose randomly(or from the first parent or the second)  the first chromosome of the first child
+    if first == 1:
+       child1.permut[0] = perm1[0]
+       child2.permut[0] = perm2[0]
+       index = 0
+       while perm2[index] != child1.permut[0]:#while we didn't complete a cycle
+           for i in range(size):
+               if perm1[i] == perm2[index]:
+                   child1.permut[i] = perm1[i]
+                   child2.permut[i] = perm2[i]
+                   index = i
+                   break
+       for i in range(size):
+           if child1.permut[i] == -1:
+               child1.permut[i] = perm2[i]
+               child2.permut[i] = perm1[i]
+
+    else:
+        child1.permut[0] = perm2[0]
+        child2.permut[0] = perm1[0]
+        index = 0
+        while perm1[index] != child1.permut[0]:
+            for i in range(size):
+                if perm2[i] == perm1[index]:
+                    child1.permut[i] = perm2[i]
+                    child2.permut[i] = perm1[i]
+                    index = i
+                    break
+        for i in range(size):
+            if child1.permut[i] == -1:
+                child1.permut[i] = perm1[i]
+                child2.permut[i] = perm2[i]
+
+    return child1, child2
+
+def simple_inverse_mutate(member):#inverse the string between specific range
+    size = len(member.str)
+    posi = randint(0, size-2)
+    posj = randint(posi+1, size-1)
+    if posi > posj:
+        posi, posj = posj, posi
+    while posi < posj:
+        member.str[posi], member.str[posj] = member.str[posj], member.str[posi]
+        posi += 1
+        posj -= 1
+
+def swap_mutate(member):#swaps two random indeces in the string
+    size = len(member.str)
+    posi = randint(0, size - 2)
+    posj = randint(posi + 1, size - 1)
+    str1 = ""
+    str1 = member.str[0:posi] + member.str[posj] + member.str[posi + 1:posj]+ member.str[posi] + member.str[posj+1:]
+    member.str = str1
+
+
+
+
+
+
+
+
+
+
 
 
 
