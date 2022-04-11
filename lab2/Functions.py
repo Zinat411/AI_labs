@@ -6,6 +6,13 @@ import matplotlib.pyplot as plt
 from scipy.stats import kendalltau
 import itertools
 
+from math import e
+from random import randint
+from sklearn.metrics import silhouette_score
+
+
+
+
 def normalize(population, args1):# function that normalize the fitness values to be between 0 and 100
     max_fit = 0
     norm_fitness = [0] * args1.GA_POPSIZE
@@ -142,7 +149,7 @@ def kendalldis(s1=[1, 2, 3, 4, 5, 6, 7],s2=[1, 3, 6, 2, 7, 4, 5]):
     corr, _ = kendalltau(s1, s2)
     print('Kendall Rank correlation: %.5f' % corr)
 
-def kendallTau(A=[1, 2, 3, 4, 5, 6, 7], B=[1, 3, 6, 2, 7, 4, 5]):
+def kendallTau(A, B):
     pairs = itertools.combinations(range(0, len(A)), 2)
 
     distance = 0
@@ -156,6 +163,149 @@ def kendallTau(A=[1, 2, 3, 4, 5, 6, 7], B=[1, 3, 6, 2, 7, 4, 5]):
             distance += 1
 
     return distance
+def edit_dis(str1,str2):
+    if(len(str1)> len(str2)):
+        diff = len(str1) - len(str2)
+        str1[:diff]
+    elif(len(str2)> len(str1)):
+        diff = len(str2) - len(str1)
+        str2[:diff]
+    else:        diff = 0
+    for i in range(len(str1)):
+        if( str1[i] != str2[i]):
+            diff += 1
+    return diff
+#print(edit_dis("medium", "median"))
+def diversity(gene, args1, population):
+    counter_div = 0
+    for i in range(0,args1.GA_POPSIZE):
+        if(population[i] != gene):
+            counter_div += edit_dis(gene.str, population[i].str)
+    return counter_div
+def genetic_diversity(population, args1):
+    k = 0.5
+    div_counter = 0
+    for gene in population:
+        gene.score = gene.fitness + k * diversity(gene, args1, population)
+        div_counter += gene.score
+    avg = div_counter / args1.GA_POPSIZE
+    print("the genes avarge diversity:", avg)
+def logistic_decay(popsize):
+    p_max = 0.075
+    min = 0.025
+    r = -0.02
+    x = [0] * 2048
+    y = [0] * 2048
+    for i in range(0, popsize):
+        mutate_rate = ((2 * (p_max ** 2) * e ** (r * i)) / (p_max + p_max * e ** (r * i)))
+        x[i] = i
+        y[i] = mutate_rate
+    plt.scatter(x, y)
+    plt.rcParams.update({'figure.figsize': (10, 8), 'figure.dpi': 100})
+    plt.xlabel('generation')
+    plt.ylabel('parameter value')
+    plt.show()
+    return y
+def threshold_spec(population,args1):
+   spec_threshold = 3
+   spec_count = 30
+   all_species = []# array that contains all the species arrays
+   specie = []
+   population[0].species = 0 #initilaize the first genom to be in the first species
+   specie.append(population[0])
+   all_species.append(specie)
+   curr_specie = 0
+   for i in range(1, args1.GA_POPSIZE):
+       flag = 1
+       for spec in all_species:
+           if edit_dis(spec[0].str, population[i].str) < spec_threshold :# if the new genom uphold the threshold condition with the first genom in the current species we check if this condition uphold to the other genoms in this species
+               for k in range(1, len(spec)):#check the other genoms in this species
+                   if edit_dis(spec[k].str, population[i].str) >= spec_threshold:# if the condition doesn't hold for specific genom we create new specie
+                      flag = 0
+                      break
+               if flag == 1:
+                   spec.append(population[i])
+                   population[i].species = spec
+                   break
+       if(population[i].species == -1):
+          curr_specie += 1
+          population[i].species = curr_specie
+          specie1 = []
+          specie1.append(population[i])
+          all_species.append(specie1)
+   counter = 0
+   for spec in all_species:
+       #print('specie num is', counter, 'specie size is', len(spec))
+       counter+=1
+   print('species num is', counter)
+       #for i in range(len(spec)):
+           #print(spec[i].str)
+def getRandomCent(population, k):
+    k_cent = []
+    for i in range(k):
+        index = randint(0, len(population))
+        k_cent.append(population[index].str)
+    return k_cent
+def assign_members(population, centroids, args1):
+   distance_from_centroid = []
+   for i in range(len(population)):
+       for j in range(len(centroids)):
+           dist = edit_dis(population[i].str, centroids[j])
+           #print('dist', dist)
+           distance_from_centroid.append(dist)
+       min_distance = distance_from_centroid[1]
+       min_centroid = 1
+       for w in range(1,len(centroids)):
+           if(distance_from_centroid[w]< min_distance):
+               min_distance = distance_from_centroid[w]
+               min_centroid = w
+       population[i].centroid = min_centroid
+def update_centroids(population, k, old_centroids, args1):
+    members_of_centroid = []
+    dist_from_centroid = []
+    new_centroids = []
+    counter = 0
+    for i in range(k):
+        for j in range(args1.GA_POPSIZE):
+            if population[j].centroid == i:
+                members_of_centroid.append(population[j].str)
+        for mem in range(len(members_of_centroid)):
+            #new_centroids.append(np.average(members_of_centroid[mem], axis=0))
+            #print('member of centroid',members_of_centroid[w], 'old centroid', old_centroids[i] )
+            dist = edit_dis(members_of_centroid[mem], old_centroids[i])
+            #print('dist', dist)
+            #dist_from_centroid.append(dist)
+            counter += dist
+        #print('len of member',len(members_of_centroid) )
+        avg = counter / len(members_of_centroid)
+        new_centroids.append(avg)
+        #min_diff = len(args1.GA_TARGET)
+        #for f in range(args1.GA_POPSIZE):
+         #   dist = edit_dis(population[f].str, )
+    return new_centroids
+def K_means(population, args1, k):
+    centroids = getRandomCent(population,k)
+    old_centroids = None
+    while(centroids != old_centroids):
+        old_centroids = centroids
+        assign_members(population, centroids, args1)
+        for i in range(args1.GA_POPSIZE):
+           centroids = update_centroids(population, k, old_centroids,args1)
+    return centroids
+def calc_silhouette(population, args1):
+    sil_avg = []
+    labels = []
+    range_n_cluster = [2,3,4,5,6,7,8]
+    for k in range_n_cluster:
+        kmeans = K_means(population,args1,k)
+        for i in range(args1.GA_POPSIZE):
+            labels.append(population[i].centroid)
+        sil_avg.append(silhouette_score(population, labels, metric='euclidean'))
+    plt.plot(range_n_cluster, sil_avg, 'bx-')
+    plt.xlabel('Values of K')
+    plt.ylabel('Silhouette score')
+    plt.title('Silhouette analysis For Optimal k')
+    plt.show()
 
 
 

@@ -75,6 +75,7 @@ class Genetic5:
 
     def mate(self, population: list[Struct], buffer: list[Struct]):
         self.elitism(population, buffer)
+        # y = logistic_decay(self.args.GA_POPSIZE)
         for i in range(self.esize, self.args.GA_POPSIZE):
             i1 = randint(0, (self.args.GA_POPSIZE/2) - 1)
             i2 = randint(0, (self.args.GA_POPSIZE/2) - 1)
@@ -99,7 +100,14 @@ class Genetic5:
                         gene = gene + population[i2].str[j]
                 buffer[i] = Struct(gene, 0)
             if random() < self.args.GA_MUTATION:
+
                 self.mutate(buffer[i])
+            # min = 0.25
+            # if y[i] < min:
+            #     y[i] = min
+            # if random() < y[i] * random():
+            #     # adding the trigered hyper mutation condition if it drops down the min limit
+            #     self.mutate(buffer[i])
 
 
 
@@ -125,19 +133,22 @@ class Genetic5:
         sd = self.calc_SD(population, avg)
 
         probabilities = [fitness / fitness_sum for fitness in fitnesses]
-        return np.random.choice(len(fitnesses), numberofwinners, probabilities)
-    def selection_pressure(self, population):
-        max=0
-        for pop in population:
-            if pop.fitness>max:
-                max=pop.fitness
+        s=np.random.choice(len(fitnesses), numberofwinners, probabilities)
+        return s, probabilities[s]
+
+    def selection_pressure(self, population, prop):
         avg = self.calc_avg_fitness(population)
-        sd = self.calc_SD(population, avg)
-        print("selection pressure is:",max/avg)
+        count_avg = 0
+        for pop in population:
+            if pop.fitness - avg < abs(2.5):
+                count_avg += 1
+        avg_members = count_avg / self.args.GA_POPSIZE
+        print("selection pressure is:", prop / avg_members)
 
     def RWS(self, population, buffer, f=-1):
         # Return num_winners RWS Selections
-        selection = self.roulette_spin(population)
+        selection, prop = self.roulette_spin(population)
+        self.selection_pressure(population, prop)
         return selection
 
     def sigmascaling(self, population: list[Struct], i: int):
@@ -174,18 +185,74 @@ class Genetic5:
                 index = i
         return index
 
+    def randomwalk(self,intensity: int, population: list,subpop:int,h:int):
+        counter=-1
+        for pop in population:
+            counter+=1
+
+            for i in range(intensity):
+                tempstr = pop.str
+                for j in range(self.tsize):
+                    if(j%h==0):
+                        x = randint(0, 1)
+                        tempstr = tempstr[:j] + chr((ord(tempstr[j])+x)) + tempstr[j + 1:]
+
+                if (tempstr == self.args.GA_TARGET and pop.fitness>1):
+                    pop.fitness = pop.fitness-1
+                    break
+            if(counter>=subpop):
+                break
+
+    def hillclimning(self,population,intensity,subpop,steepest:bool,h):
+        counter = -1
+        for pop in population:
+            counter += 1
+            for i in range(intensity):
+                tempstr = pop.str
+                bestfit = pop.fitness
+                for j in range(self.tsize):
+                    if (j % h == 0):
+                        x = randint(0, 1)
+                        tempstr = tempstr[:j] + chr((ord(tempstr[j]) + x)) + tempstr[j + 1:]
+                        for k in range(self.tsize):
+                            fitness = fitness + abs(ord(tempstr[k]) - ord(self.args.GA_TARGET[k]))
+
+                        if(fitness<bestfit):
+                            bestfit=fitness
+                            pop.str=tempstr
+                            pop.fitness=bestfit
+                            if steepest:
+                                break
+
+                if (tempstr == self.args.GA_TARGET and pop.fitness > 1):
+                    pop.fitness = pop.fitness - 1
+                    break
+            if (counter >= subpop):
+                break
 
 
+    def kgene(self,population: list[Struct],buffer,k):
 
+        for i in range(self.esize, self.args.GA_POPSIZE):
+            start = 0
+            str=""
+            for j in range(k):
+                if j==k:
+                    i1 = randint(0, (self.args.GA_POPSIZE / 2) - 1)
+                    str = population[i].str[start:self.tsize]
+                    start += k
+                i1 = randint(0, (self.args.GA_POPSIZE / 2) - 1)
+                str=population[i].str[start:(start+self.tsize/k)]
+                start+=k
 
+            buffer[i]=Struct(str,0)
+            if random() < self.args.GA_MUTATION:
+                self.mutate(buffer[i])
 
-
-
-
-
-
-
-
-
-
-
+    def immigrants(self, buffer):
+        index = 0
+        for i in range(self.args.GA_POPSIZE- self.esize, self.args.GA_POPSIZE):
+            buffer[i] = buffer[index]
+            index += 1
+            if randrange(sys.maxsize) < sys.maxsize:
+                self.mutate(buffer[i])

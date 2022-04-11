@@ -4,7 +4,7 @@ MIN = 32
 ENTRIES = []
 
 class Var:
-    def __init__(self, popsize, maxIter, eliteRate, mutationRate, targetString, cross_type,problem=0,nqueens=8,tournamentK=500,
+    def __init__(self, popsize, maxIter, eliteRate, mutationRate, targetString, cross_type,problem=0,frequency=1,Intensity=1000,nqueens=8,tournamentK=500,
                  numBins=3,weightarr=[12,10,2,4,8,34,12,87,23,33],binsize=[30,40,50],binnum=10):
         self.GA_POPSIZE = popsize
         self.GA_TARGET = targetString
@@ -20,5 +20,7 @@ class Var:
         self.binsize = binsize
         self.binnum = binnum
         self.problem=problem
+        self.frequency=frequency
+        self.Intensity=Intensity
 
 
