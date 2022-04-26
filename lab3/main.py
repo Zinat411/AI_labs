@@ -15,3 +15,4 @@ if __name__ == '__main__':
     d = gender.Detector()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+#my name is zinat
