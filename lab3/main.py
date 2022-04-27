@@ -1,18 +1,20 @@
-# This is a sample Python script.
-import gender_guesser.detector as gender
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from CVRP import *
+from City import *
+from Vehicle import *
 
+def CV():
+    arr_city = []
+    arr_veh = [0] * 5
+    xcor = 5
+    ycor = 2
+    for i in range(4):
+        city = City(xcor, ycor, 0)
+        arr_city.append(city)
+        xcor += 1
+        ycor += 2
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
+    cv = CVRP(arr_city, arr_veh, arr_city[2])
+    mat= cv.Distance_mat(arr_city)
+    #print(mat)
 if __name__ == '__main__':
-    print_hi('PyCharm')
-    d = gender.Detector()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-#my name is zinat
+    CV()
