@@ -1,6 +1,8 @@
 from CVRP import *
 from City import *
 from Vehicle import *
+from GetInput import *
+from SimulatedAnnealing import *
 
 def CV():
     arr_city = []
@@ -13,8 +15,9 @@ def CV():
         xcor += 1
         ycor += 2
 
-    cv = CVRP(arr_city, arr_veh, arr_city[2])
-    mat= cv.Distance_mat(arr_city)
+    #cv = CVRP(arr_city, arr_veh, arr_city[2])
+    #mat= cv.Distance_mat(arr_city)
     #print(mat)
 if __name__ == '__main__':
-    CV()
+    problem = GetInput("\problem1.txt")
+    Simulated_Annealing(problem, 100, 0.5, 2048, 1500, 25)
