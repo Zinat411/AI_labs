@@ -8,21 +8,30 @@ class CVRP:
         self.Dimension = Dimension
         self.Warehouse = Warehouse
         self.Capacity = Capacity
+        self.best_tour = []
+        self.best_cost = 0
+        self.solution = []
+        self.trucks = 0
 
     def Distance_mat(self):
         Cities = self.Cities
         numCities = len(Cities)
         rows, cols = numCities, numCities
-        arr = [[0]*rows]*cols
+        arr_row = []
         for i in range(rows):
+            arr_col = []
             for j in range(cols):
                 dx = (Cities[i].Xcor - Cities[j].Xcor) * (Cities[i].Xcor - Cities[j].Xcor)
                 dy = (Cities[i].Ycor - Cities[j].Ycor) * (Cities[i].Ycor - Cities[j].Ycor)
                 distance = sqrt(dx + dy)
-                arr[i][j] = distance
-                arr[j][i] = distance
-        return arr
-
+                arr_col.append(distance)
+            arr_row.append(arr_col)
+        return arr_row
+    def print_result(self):
+        print(self.best_cost)
+        all = self.Vehicles_tour(self.best_tour)
+        for tour in all:
+            print(*tour, sep=' ')
     def Vehicles_tour(self, tour): #this function returns the path for every vehicle given the whole path permutation
         first = 0 #index for the first of the vehicle's path
         last = 0  #index for the last of the vehicle's path
@@ -38,14 +47,13 @@ class CVRP:
             else:
                 veh_arr.append(tour[first: last+1])
                 first = last + 1
-                veh_num += 1
                 veh_capacity = self.Capacity - self.Cities[curr - 1].demand
             last += 1
         veh_arr.append(tour[first:tour_length])
         #to saperate every vehicle's tour from one anthor we added -1 between them in the original array
         for veh_tour in veh_arr:
-            veh_tour.append(-1)
-            veh_tour.insert(0, -1)
+            veh_tour.insert(0, 0)
+            veh_tour.append(0)
 
         return veh_arr
 

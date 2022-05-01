@@ -21,17 +21,19 @@ def GetInput(name):
         for l in range(dimension):
             line = file.readline()
             words = line.split(' ')
-            city=City(int(words[0]),int(words[1]),int(words[2]))
+            city=City(int(words[0]) ,int(words[1]),int(words[2]))
             citylst.append(city)
         file.readline()
         for l in range(dimension):
             line = file.readline()
             words = line.split(' ')
-            citylst.__getitem__(i).demand=int(words[1])
+            citylst.__getitem__(i).setDemand(int(words[1]))
             i += 1
 
         warehouse=citylst.__getitem__(0)
         citylst.__delitem__(0)
+        citylst.insert(0, warehouse)
         cvrp=CVRP(dimension,capacity,citylst,warehouse)
+        #print(citylst[2].Xcor)
         return cvrp
 
