@@ -120,6 +120,7 @@ class Genetic5:
         member.str[jpos]=temp
         # str1 = member.str[:ipos] + chr((ord(member.str[ipos]) + delta) % 122) + member.str[ipos + 1:]
         # member.str = str1
+        #test
 
     def print_best(self, gav: list[Struct]):
         print('Best: ', self.population[0].str, '(', str(self.population[0].fitness), ')')
