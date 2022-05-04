@@ -10,6 +10,7 @@ import random
 import math
 from numpy.random import choice
 from Heuristic import *
+import time
 class Genetic5:
     def __init__(self, args,cvrp, stop):
         self.args = args
@@ -22,6 +23,7 @@ class Genetic5:
     def init_population(self): #create popsize citizens
         for i in range(len(self.cvrp.Cities)):
              str1 = get_best_neighbor(self.cvrp, len(self.cvrp.Cities))
+             print('str', str1)
              gene = Struct(str1, 0)
              self.population.append(gene)
              str2 = get_best_neighbor(self.cvrp, len(self.cvrp.Cities))
@@ -30,33 +32,31 @@ class Genetic5:
 
 
     def gastart(self):
+        start = time.time()
         fitlst = []
-        check = 0
         final_best = float('inf')
         self.init_population()
         for i in range(self.args.maxiter):
-            #for gene in self.population:
+            iteration_Time = time.time()
             self.calcfitness()
             self.sort_by_fitness(self.population)
             self.print_best(self.population)
-            fitlst.append(self.population[0].fitness)
-            #if self.population[0].getFitness() == 0:
-            if check == self.stop or self.population[0].fitness == 0:
+            if self.population[0].fitness == 0:
+                print('Clock tiks: ', time.time() - iteration_Time)
                 print()
                 print("Best string: " + str(self.population[0].str))
                 print(f'found in {i} iterations out of {self.args.maxiter}')
                 break
             best = self.population[0].getString()[:]
             best_fitness = self.population[0].fitness
-            if final_best == best_fitness:
-                check += 1
-            if best_fitness < final_best:
-                final_best = best_fitness
-                check = 1
             self.mate(self.population, self.buffer)
             self.population, self.buffer = self.buffer, self.population
-            self.cvrp.best_tour = best
-            self.cvrp.best_cost = best_fitness
+            print('Clock tiks: ', time.time() - iteration_Time)
+        self.cvrp.best_tour = best
+        self.cvrp.best_cost = best_fitness
+        print('Time elapsed: ', time.time() - start)
+        for gene in self.population:
+            fitlst.append(gene.fitness)
         return fitlst
 
     def calcfitness(self):
@@ -64,6 +64,7 @@ class Genetic5:
         for gene in self.population:
             fitness = self.cvrp.tour_cost_veh(gene.str)
             gene.fitness = fitness
+            #print('gene fitness', gene.fitness)
     def calc_avg_fitness(self, population: list[Struct]):# this function calculates the average of the fitness
         totalfitness = 0
         avgfitness = 0

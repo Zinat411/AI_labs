@@ -10,21 +10,8 @@ from lab3.Genetic5 import Genetic5
 from lab3.TabuSearch import TabuSearch
 from SimulatedAnnealing import *
 from timeit import default_timer as timer
+from ACO import *
 
-def CV():
-    arr_city = []
-    arr_veh = [0] * 5
-    xcor = 5
-    ycor = 2
-    for i in range(4):
-        city = City(xcor, ycor, 0)
-        arr_city.append(city)
-        xcor += 1
-        ycor += 2
-
-    #cv = CVRP(arr_city, arr_veh, arr_city[2])
-    #mat= cv.Distance_mat(arr_city)
-    #print(mat)
 
 
 if __name__ == '__main__':
@@ -62,7 +49,12 @@ if __name__ == '__main__':
         ga = Genetic5(args, cvrp, 25)
         lst = ga.gastart()
         cvrp.print_result()
-    # if (algo == 3):
+    if (algo == 3):
+        lst =ACO(cvrp,args)
+
+        # for city in cvrp.Cities:
+        #     print(city.id)
+        cvrp.print_result()
 
     if (algo == 4):
         #get_best_neighbor(cvrp, len(cvrp.Cities))
@@ -81,9 +73,4 @@ if __name__ == '__main__':
     plt.show()
 
 
-    #problem = GetInput("\problem1.txt")
-    #cv = CVRP(problem.Dimension, problem.Capacity, problem.Cities, problem.Warehouse)
-    #mat = cv.Distance_mat()
-    #print(mat)
-    #Simulated_Annealing(problem, 100, 0.5, 2048, 1500, 25)
-    #problem.print_result()
+

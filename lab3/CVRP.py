@@ -14,20 +14,6 @@ class CVRP:
         self.trucks = 0
         self.matrix = matrix
 
-    def Distance_mat(self):
-        Cities = self.Cities
-        numCities = self.sizeofprob
-        rows, cols = numCities, numCities
-        arr_row = []
-        for i in range(rows):
-            arr_col = []
-            for j in range(cols):
-                dx = (Cities[i].Xcor - Cities[j].Xcor) * (Cities[i].Xcor - Cities[j].Xcor)
-                dy = (Cities[i].Ycor - Cities[j].Ycor) * (Cities[i].Ycor - Cities[j].Ycor)
-                distance = sqrt(dx + dy)
-                arr_col.append(distance)
-            arr_row.append(arr_col)
-        return arr_row
     def set_cities(self):
         self.Cities = self.Cities.pop(0)
     def print_result(self):
@@ -62,30 +48,52 @@ class CVRP:
         return veh_arr
 
     def tour_cost_veh(self, tour):# this function calculates the cost of the vehicle's tour
-        print('in cvrp',tour)
         matrix = self.matrix
         count = 0
         count += matrix[tour[0]][0]
         last = len(tour)
-        #print(tour)
         veh_capacity = self.Capacity - self.Cities[tour[0] - 1].demand
         for i in range(last - 2):
             curr = tour[i]
             target = tour[i+1]
             if self.Cities[target-1].demand <= veh_capacity:
-                #cost = matrix[curr][target]
                 veh_capacity -= self.Cities[target-1].demand
                 count += matrix[curr][target]
             else:
                 count += matrix[curr][0] + matrix[target][0]
-                veh_capacity = self.Capacity -self.Cities[target - 1].demand
-                #count += matrix[target][0]
-                #veh_capacity -= self.Cities[target - 1].demand
-                # new tour for new vehicle starting at target
+                veh_capacity = self.Capacity - self.Cities[target - 1].demand
 
         count += matrix[tour[last - 1]][0]
         return count
+#**********************ACO functions**************************
+    def cal(i, j, pmat, dmat):
+        return float(pow(float(pmat[i][j]), 2) * pow(float(1 / float(dmat[i + 1][j + 1])), 2))
+    def acophmatrix(acophmatrix, path, cost):
+        current = [[float(0) for _ in range(len(acophmatrix[0]))] for _ in range(len(acophmatrix[0]))]
+        for i in range(len(path) - 1):
+            current[path[i] - 1][path[i + 1] - 1] = float(float(2) / float(cost))
+            current[path[i + 1] - 1][path[i] - 1] = float(float(2) / float(cost))
 
+        for i in range(len(acophmatrix[0])):
+            for j in range(len(acophmatrix[0])):
+                num1 = float(acophmatrix[i][j] * (1 - 2))
+                num2 = float(current[i][j] * 2)
+                acophmatrix[i][j] = float(num1 + num2)
+                if acophmatrix[i][j] < 0.0001:
+                    acophmatrix[i][j] = 0.0001
+
+    def getp(currentCity, pmat):
+        v = []
+        s = sum(pmat[currentCity - 1][:])
+        for i in range(len(pmat[0])):
+            v.append(float(float(pmat[currentCity - 1][i]) / float(s)))
+        return v
+
+
+    def updatemat(current, pmat):
+        for i in range(len(pmat[0])):
+            pmat[current - 1][i] = float(0)
+            pmat[i][current - 1] = float(0)
 
 
 

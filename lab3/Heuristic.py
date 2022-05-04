@@ -5,27 +5,19 @@ def get_best_neighbor(problem, size):
     arr = []
     city = randint(1, size)
     arr.append(city)
-    #print('city', city)
     is_available = {city: True}
     index = size - 1
     while index > 0:
         matrix = problem.matrix
         sub_arr = matrix[city]
-        #print('len sub array', len(sub_arr))
-        #print('sub arr', sub_arr)
         min_dis = float('inf')
         min_city = 1
         for i in range(1, len(sub_arr)):
-            #print('is available:', is_available.get(i))
             if sub_arr[i] < min_dis and not is_available.get(i, False):
                 min_dis = sub_arr[i]
-                #print('**************', 'i', i+1 , 'sub_arr[i]', sub_arr[i])
                 min_city = i
-                #print('min city', min_city, 'value', sub_arr[i])
         arr.append(min_city)
         is_available[min_city] = True
-        #print('arr', arr)
-        #print('is available ', is_available)
         index -= 1
         city = min_city
 
