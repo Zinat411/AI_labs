@@ -3,7 +3,7 @@ from Vehicle import *
 from math import sqrt
 import random
 class CVRP:
-    def __init__(self, Dimension, Capacity, Cities ,Warehouse):
+    def __init__(self, Dimension, Capacity, Cities ,Warehouse, matrix):
         self.Cities = Cities
         self.Dimension = Dimension
         self.Warehouse = Warehouse
@@ -12,10 +12,11 @@ class CVRP:
         self.best_cost = 0
         self.solution = []
         self.trucks = 0
+        self.matrix = matrix
 
     def Distance_mat(self):
         Cities = self.Cities
-        numCities = len(Cities)
+        numCities = self.sizeofprob
         rows, cols = numCities, numCities
         arr_row = []
         for i in range(rows):
@@ -27,8 +28,11 @@ class CVRP:
                 arr_col.append(distance)
             arr_row.append(arr_col)
         return arr_row
+    def set_cities(self):
+        self.Cities = self.Cities.pop(0)
     def print_result(self):
         print(self.best_cost)
+        #print('the best tour', self.best_tour)
         all = self.Vehicles_tour(self.best_tour)
         for tour in all:
             print(*tour, sep=' ')
@@ -57,21 +61,27 @@ class CVRP:
 
         return veh_arr
 
-    def tour_cost_veh(self, tour, cities):# this function calculates the cost of the vehicle's tour
-        matrix = self.Distance_mat()
-        count = matrix[tour[0]][0]
+    def tour_cost_veh(self, tour):# this function calculates the cost of the vehicle's tour
+        print('in cvrp',tour)
+        matrix = self.matrix
+        count = 0
+        count += matrix[tour[0]][0]
         last = len(tour)
+        #print(tour)
         veh_capacity = self.Capacity - self.Cities[tour[0] - 1].demand
-        for i in range(last - 1):
+        for i in range(last - 2):
             curr = tour[i]
             target = tour[i+1]
             if self.Cities[target-1].demand <= veh_capacity:
-                count += matrix[curr][target]
+                #cost = matrix[curr][target]
                 veh_capacity -= self.Cities[target-1].demand
+                count += matrix[curr][target]
             else:
-                count += matrix[curr][0]
-                veh_capacity = self.Capacity - self.Cities[target - 1].demand
-                count += matrix[target][0]# new tour for new vehicle starting at target
+                count += matrix[curr][0] + matrix[target][0]
+                veh_capacity = self.Capacity -self.Cities[target - 1].demand
+                #count += matrix[target][0]
+                #veh_capacity -= self.Cities[target - 1].demand
+                # new tour for new vehicle starting at target
 
         count += matrix[tour[last - 1]][0]
         return count

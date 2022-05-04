@@ -3,9 +3,10 @@ from datetime import time
 from lab3 import Arguments
 from lab3.CVRP import CVRP
 import random
-
+from Heuristic import *
+import time
 class TabuSearch:
-    def __init__(self,cvrp: CVRP,args:Arguments):
+    def __init__(self,cvrp,args:Arguments):
 
         self.args=args
         self.cvrp=cvrp
@@ -17,65 +18,32 @@ class TabuSearch:
         solution[city1pos], solution[city2pos] = solution[city2pos], solution[city1pos]
         return solution
 
-    def findneighbor(self,path):
-        neighbors=[]
-        for i in range(self.cvrp.Dimension):
-             neighbors.append(self.SwapMove(path, random.randint(1, self.cvrp.Dimension),random.randint(1, self.cvrp.Dimension)))
-        return neighbors
-
-    def calcfitness(self,path):
-        fitness = 0
-        i=0
-        trucksnum=1
-        capacity = self.cvrp.Capacity
-
-        fitness += self.cvrp.Distance_mat()[path[i+1]-1][0] #cost paid so far
-        capacity -= self.cvrp.Cities[path[i] - 1].demand #capacity left
-
-
-        while i < (self.cvrp.Dimension-2):
-            x = path[i]
-            y = path[i + 1]
-            # print(x," coor ",y)
-            if self.cvrp.Cities[y - 1].demand <= capacity:
-                cost = self.cvrp.Distance_mat()[x-1][y-1]
-                capacity -= self.cvrp.Cities[y - 1].demand
-                fitness += cost
-            else:
-                fitness += self.cvrp.Distance_mat()[x-1][0]
-                capacity = self.cvrp.Capacity
-                trucksnum += 1
-                fitness += self.cvrp.Distance_mat()[y-1][0]
-                capacity -= self.cvrp.Cities[y - 1].demand
-            i += 1
-
-        fitness += self.cvrp.Distance_mat()[path[i]-1][0]
-        return fitness
-
     def start(self):
         lst=[]
-        best=list(range(1,self.cvrp.Dimension+1))
+        best=get_best_neighbor(self.cvrp, len(self.cvrp.Cities))
         random.shuffle(best)
-        fitness = self.calcfitness(best) #best fitness->fitness
+        fitness = self.cvrp.tour_cost_veh(best) #best fitness->fitness
         lst.append(fitness)
         temp = best #bestcandidate->temp
         recent = {str(best): True}#check at the end
+        y = []
 
         recentcities = [best]
         for j in range(self.args.maxiter):
-
-            neighborhood = self.findneighbor(temp)  # get neighborhood of current solution
+            iterTime = time.time()
+            neighborhood = get_all_neighborhood(temp, self.cvrp.Dimension)
+            y.append(fitness)
+            #neighborhood = self.findneighbor(temp)  # get neighborhood of current solution
             temp = neighborhood[0]
-            min= self.calcfitness(temp)
+            min= self.cvrp.tour_cost_veh(temp)
 
             for n in neighborhood:
-                cost= self.calcfitness(n)
+                cost= self.cvrp.tour_cost_veh(n)
                 if cost < min and not recent.get(str(n), False):
                     min = cost
                     temp = n
             if min < fitness:  # update best (take a step towards the better neighbor)
                 fitness = min
-
                 best = temp
             recentcities.append(temp)
             recent[str(temp)] = True
@@ -86,6 +54,8 @@ class TabuSearch:
             print("best solution is: ", best)
             print("cost is: ", fitness)
             lst.append(fitness)
+        self.cvrp.best_tour = best
+        self.cvrp.best_cost = fitness
         return lst
 
 

@@ -25,26 +25,7 @@ def CV():
     #cv = CVRP(arr_city, arr_veh, arr_city[2])
     #mat= cv.Distance_mat(arr_city)
     #print(mat)
-def gastart(args,cvrp):
-    population = []
-    buffer = []
-    fitlst=[]
-    ga = Genetic5(args, cvrp)
-    ga.init_population(population, buffer)
-    for i in range(args.maxiter):
-        for pop in population:
-            pop.fitness = ga.calcfitness(pop.str)
-        ga.sort_by_fitness(population)
-        ga.print_best(population)
-        fitlst.append(population[0].fitness)
-        if population[0].getFitness() == 0:
-            print()
-            print("Best string: " + str(population[0].str))
-            print(f'found in {i} iterations out of {args.maxiter}')
-            break
-        ga.mate(population, buffer)
-        population, buffer = buffer, population
-    return fitlst
+
 
 if __name__ == '__main__':
     fig, ax = plt.subplots()
@@ -72,16 +53,21 @@ if __name__ == '__main__':
                      "5 for PSO\n"
                      ))
     lst = []
+
     if (algo == 1):
         ts = TabuSearch(cvrp, args)
         lst = ts.start()
+        cvrp.print_result()
     if (algo == 2):
-        lst = gastart(args, cvrp)
+        ga = Genetic5(args, cvrp, 25)
+        lst = ga.gastart()
+        cvrp.print_result()
     # if (algo == 3):
 
     if (algo == 4):
+        #get_best_neighbor(cvrp, len(cvrp.Cities))
          Simulated_Annealing(cvrp, 100, 0.5, 2048, 1500, 25)
-         #cvrp.print_result()
+         cvrp.print_result()
     # if (algo == 5):
 
 
@@ -89,7 +75,8 @@ if __name__ == '__main__':
     for i in range(len(lst)):
         gennumarr.append(i)
     ax.plot(gennumarr, lst)
-    ax.set_title('fitness')
+    plt.xlabel('iteration num')
+    plt.ylabel('fitness')
 
     plt.show()
 

@@ -2,17 +2,20 @@ from Heuristic import *
 from CVRP import *
 import time
 from numpy import exp
-from numpy.random import rand
+from numpy.random import rand, random
 import matplotlib.pyplot as plt
+import copy
 
 def Simulated_Annealing(problem, temp, alpha, neighbor_size, maxIter, stop):
     start = time.time()
     size = len(problem.Cities)
     best_neighbor = get_best_neighbor(problem, size)
-    for i in range(len(best_neighbor) - 1 ):
-        if best_neighbor[i] == best_neighbor[i+1]:
-             best_neighbor.pop(i+1)
-    best_tour = problem.tour_cost_veh(best_neighbor, problem.Cities)
+    #print('in sim ann with best_neighbor', best_neighbor)
+    #for i in range(len(best_neighbor) - 1 ):
+        #if best_neighbor[i] == best_neighbor[i+1]:
+             #best_neighbor.pop(i+1)
+    best_tour = problem.tour_cost_veh(best_neighbor)
+    #print('best tour is:', best_tour)
     curr_best_neigh = best_neighbor
     curr_best_tour = best_tour
     final_best_neigh = best_neighbor
@@ -28,20 +31,20 @@ def Simulated_Annealing(problem, temp, alpha, neighbor_size, maxIter, stop):
         for j in range(k):
             index = randint(0, len(neighborhood) - 1)
             randNeigh = neighborhood[index]
-            randTour = problem.tour_cost_veh(randNeigh, problem.Cities)
+            randTour = problem.tour_cost_veh(randNeigh)
             d = randTour - best_tour
             result = float(exp(float(-1 * d) / temp1))
             if randTour < curr_best_tour:
-                curr_best_neigh = randNeigh
+                curr_best_neigh = copy.deepcopy(randNeigh)
                 curr_best_tour = randTour
-            elif result > rand():
-                curr_best_neigh = randNeigh
+            elif result > random():
+                curr_best_neigh = copy.deepcopy(randNeigh)
                 curr_best_tour = randTour
         if curr_best_tour < best_tour:
             best_neighbor = curr_best_neigh
             best_tour = curr_best_tour
             optimum = 0
-        elif curr_best_tour == best_tour:# when local optimum is found
+        if curr_best_tour == best_tour:# when local optimum is found
             optimum += 1
         if best_tour < final_best_tour:
             final_best_neigh = best_neighbor
@@ -50,25 +53,26 @@ def Simulated_Annealing(problem, temp, alpha, neighbor_size, maxIter, stop):
             if best_tour < final_best_tour:
                 final_best_neigh = best_neighbor
                 final_best_tour = best_tour
-                best_neighbor = get_best_neighbor(problem, size)
-                best_tour = problem.tour_cost_veh(best_neighbor, problem.Cities)
-                curr_best_neigh = best_neighbor
-                curr_best_tour = best_tour
-                optimum = 0
-                temp1 = float(temp1)
-            print('result: ', best_neighbor)
-            print('total: ',best_tour)
-            print('clock ticks:', time.time() - iterTime)
-            temp1 *= alpha
-            #print('temp', temp1)
+            best_neighbor = get_best_neighbor(problem, size)
+            best_tour = problem.tour_cost_veh(best_neighbor)
+            curr_best_neigh = best_neighbor
+            curr_best_tour = best_tour
+            optimum = 0
+            temp1 = float(temp)
+        print('result: ', best_neighbor)
+        print('total: ',best_tour)
+        print('clock ticks:', time.time() - iterTime)
+        temp1 *= alpha
     print('Time elapsed: ', time.time() - start)
     problem.best_tour = final_best_neigh
     problem.best_cost = final_best_tour
     x = [i for i in range(maxIter)]
-    plt.scatter(x, y)
-    plt.title('The relation between iteration and the cost')
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
+    #plt.scatter(x, y)
+    #plt.title('The relation between iteration and the cost')
     plt.xlabel('iteration num')
-    plt.ylabel('cost')
+    plt.ylabel('fitness')
     plt.show()
 
 def restart(optimum, stop, best_tour, final_best_tour, best_neighbor, problem, size, temp1):
