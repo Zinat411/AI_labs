@@ -11,6 +11,16 @@ from lab3.TabuSearch import TabuSearch
 from SimulatedAnnealing import *
 from timeit import default_timer as timer
 from ACO import *
+from numpy import arange
+from numpy import exp
+from numpy import sqrt
+from numpy import cos
+from numpy import e
+from numpy import pi
+from numpy import meshgrid
+import numpy as np
+from numpy import random
+import matplotlib.pyplot as plt
 
 
 
@@ -19,8 +29,9 @@ if __name__ == '__main__':
     args = Arguments.Var(50, 1000, 20, 0.1, 0.5)  # (self, maxiter,lastN,popsize,eliteRate, mutationRate,):
     # ts=TabuSearch(cvrp,args)
     # ts.start()
-    problem = int(input("please enter problem number: 1-5 \n"
+    problem = int(input("please enter problem number: 1-5 and 6 for the ackly test\n"
                         ))
+
     if (problem == 1):
         cvrp = GetInput("\problem1.txt")
         #cvrp.print_result()
@@ -32,9 +43,13 @@ if __name__ == '__main__':
         cvrp = GetInput("\E-n76-k8.txt").cvrp
     if (problem == 5):
         cvrp = GetInput("\E-n76-k10.txt").cvrp
+    if (problem == 6):
+        cities=random.uniform(low=-32.768, high=32.768, size=10)
+        cvrp=CVRP(10, 0, cities, None, None)
+
     algo = int(input("please enter algo number:\n"
                      "1 for tabu searchn\n"
-                     "2 for genetic algotitm\n"
+                     "2 for genetic algorithm\n"
                      "3 for ACO \n"
                      "4 for simulated annealing\n"
                      "5 for PSO\n"
@@ -67,10 +82,12 @@ if __name__ == '__main__':
     for i in range(len(lst)):
         gennumarr.append(i)
     ax.plot(gennumarr, lst)
+    print(gennumarr)
+    print(lst)
     plt.xlabel('iteration num')
     plt.ylabel('fitness')
-
-    plt.show()
+    if algo!=4:
+       plt.show()
 
 
 

@@ -18,10 +18,10 @@ class CVRP:
         self.Cities = self.Cities.pop(0)
     def print_result(self):
         print(self.best_cost)
-        #print('the best tour', self.best_tour)
-        all = self.Vehicles_tour(self.best_tour)
-        for tour in all:
-            print(*tour, sep=' ')
+        # #print('the best tour', self.best_tour)
+        # all = self.Vehicles_tour(self.best_tour)
+        # for tour in all:
+        #     print(*tour, sep=' ')
     def Vehicles_tour(self, tour): #this function returns the path for every vehicle given the whole path permutation
         first = 0 #index for the first of the vehicle's path
         last = 0  #index for the last of the vehicle's path

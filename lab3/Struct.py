@@ -6,8 +6,10 @@ class Struct:
         self.fitness = fitness
 
 
+
     def getString(self):
         return self.str
+
 
     def getFitness(self):
         return self.fitness

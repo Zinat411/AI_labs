@@ -1,6 +1,6 @@
 from random import randint
 from CVRP import *
-
+from numpy.random import uniform
 def get_best_neighbor(problem, size):
     arr = []
     city = randint(1, size)
@@ -26,6 +26,7 @@ def get_best_neighbor(problem, size):
 def get_all_neighborhood(best, size):
      neighborhood = []
      for i in range(size):
+         best[random.randint(0,9)]=uniform(-32.768,32.768)
          neighborhood.append(simple_inverse_mutate(best))
      return neighborhood
 

@@ -3,7 +3,7 @@ from lab3.City import City
 import math
 
 def GetInput(name):
-        file = open(r"C:\Users\WIN10\Desktop\CVRP\CVRP\problem1.txt")
+        file = open(r"C:\Users\win10\OneDrive\Desktop\AI\AI_labs\lab3\problems\E-n22-k4.txt")
         file.readline()
         file.readline()
         file.readline()

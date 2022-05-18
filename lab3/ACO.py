@@ -4,6 +4,8 @@ from numpy.random import choice
 import time
 
 from lab3.CVRP import CVRP
+from numpy.random import uniform
+import math
 
 
 def ACO(cv:CVRP, args):
@@ -22,7 +24,13 @@ def ACO(cv:CVRP, args):
     for k in range(args.maxiter):
         iterTime = time.time()
         temp = getPath(cv, pmatrix)
-        tempFitness = cv.tour_cost_veh(temp)
+        # tempFitness = cv.tour_cost_veh(temp)
+        calc=0
+        calc2=0
+        for i in range(10):
+            calc += ((temp[i]) ** 2)
+            calc2 += math.cos(2 * math.pi * temp[i])
+        tempFitness = -20.0 * math.exp(-0.2 * math.sqrt(0.1 * calc)) - math.exp(0.1 * calc2) + 1 + 20
         if tempFitness < currentFitness:
             currentFitness = tempFitness
             currentPath = temp
@@ -62,19 +70,20 @@ def getPath(cvpr, pmatrix):
     pmat = []
     for i in range(len(cvpr.Cities)):
         problst = []
-        for j in range(len(cvpr.Cities)):
-            x = 0
-            if i != j:
-                x = CVRP.cal(i, j, pmatrix, cvpr.matrix)
-            problst.append(x)
-        pmat.append(problst)
+        # for j in range(len(cvpr.Cities)):
+        #     x = 0
+        #     if i != j:
+        #         x = CVRP.cal(i, j, pmatrix, cvpr.matrix)
+        #     problst.append(x)
+        # pmat.append(problst)
     currentCity = randint(1, len(citylst))
     citylst[currentCity - 1] = -1
     path = [currentCity]
     while len(citylst) != len(path):
-        pvec = CVRP.getp(currentCity, pmat)
-        CVRP.updatemat(currentCity, pmat)
-        currentCity = choice(citylst, p=pvec)
+        # pvec = CVRP.getp(currentCity, pmat)
+        # CVRP.updatemat(currentCity, pmat)
+        # currentCity = choice(citylst, p=pvec)
+        currentCity = choice(citylst)
         citylst[currentCity - 1] = -1
 
         path.append(currentCity)
