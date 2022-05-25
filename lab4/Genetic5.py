@@ -18,12 +18,12 @@ class Genetic5:
         self.population = []
         self.parasites = []
         self.buffer = []
-        self.nwsize=16
-        self.minlength=65
-        self.maxlength=80
+        self.nwsize=6
+        self.minlength=12
+        self.maxlength=20
 
     def init_population(self): #create popsize citizens
-          for i in range(10000):
+          for i in range(100):
               gene = Struct(np.random.randint(0,self.nwsize,self.nwsize), 0)
               self.parasites.append(gene)
           for j in range(self.args.GA_POPSIZE):
@@ -40,19 +40,20 @@ class Genetic5:
 
     def calc_fitness(self, population: list[Struct]):
 
-        for test in self.parasites:
-            fitness = 0
-            for network in self.population:
-              if self.sortByNetwork(network.arr,test.arr):
-                  fitness+=1
-            test.fitness=fitness/self.args.GA_POPSIZE
+        # for test in self.parasites:
+        #     fitness = 0
+        #     for network in self.population:
+        #       if self.sortByNetwork(network.arr,test.arr):
+        #           fitness+=1
+        #     test.fitness=fitness/self.args.GA_POPSIZE
 
         for network in self.population:
             fitness = 0
+            depth=len(network.arr)
             for test in self.parasites:
                 if self.sortByNetwork(network.arr,test.arr):
                     fitness+=1
-            network.fitness=(fitness/1000)*len(network.arr)
+            network.fitness=(fitness/100)*depth
 
     def sortByNetwork(self,network,test):
         test2=[]
@@ -116,14 +117,18 @@ class Genetic5:
 
     def mutate(self, member: Struct):
         ipos = randint(0,len( member.arr)-1)
+        del member.arr[ipos]
+        ipos = randint(0, len(member.arr) - 1)
         if ipos%2==1:
             ipos-=1
         y=randrange(0,self.nwsize)
-        member.arr[ipos]=y
         x = randrange(0, self.nwsize)
         while x==y:
             x = randrange(0, self.nwsize)
-        member.arr[ipos+1] = x
+
+        member.arr.insert(ipos,x)
+        member.arr.insert(ipos+1, y)
+
 
     def print_best(self, gav: list[Struct]):
         print('Best: ', gav[0].arr, '(', str(gav[0].fitness), ')')
