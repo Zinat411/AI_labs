@@ -18,25 +18,25 @@ class Genetic5:
         self.population = []
         self.parasites = []
         self.buffer = []
+        self.nwsize=16
+        self.minlength=65
+        self.maxlength=80
 
     def init_population(self): #create popsize citizens
-          for i in range(1000):
-              gene = Struct(uniform(0,10000,6), 0)
+          for i in range(10000):
+              gene = Struct(np.random.randint(0,self.nwsize,self.nwsize), 0)
               self.parasites.append(gene)
           for j in range(self.args.GA_POPSIZE):
               nw = []
-              for i in range(randrange(12,30)):
-                  y = randrange(0, 6)
+              for k in range(randrange(self.minlength, self.maxlength)):
+                  y = randrange(0, self.nwsize)
                   nw.append(y)
-                  x=randrange(0,6)
+                  x=randrange(0,self.nwsize)
                   while(x==y):
-                      x = randrange(0, 6)
+                      x = randrange(0, self.nwsize)
                   nw.append(x)
               gene = Struct(nw, 0)
               self.population.append(gene)
-
-
-
 
     def calc_fitness(self, population: list[Struct]):
 
@@ -52,22 +52,22 @@ class Genetic5:
             for test in self.parasites:
                 if self.sortByNetwork(network.arr,test.arr):
                     fitness+=1
-            network.fitness=(fitness/self.args.GA_POPSIZE)*len(network.arr)
-
+            network.fitness=(fitness/1000)*len(network.arr)
 
     def sortByNetwork(self,network,test):
-        test2=test
-        for i in range(0,len(network)-1):
-
-            temp=test2[network[i+1]]
-            test2[network[i+1]]=test2[network[i]]
-            test2[network[i]]=temp
-            i += 1
+        test2=[]
+        for i in test:
+            test2.append(i)
+        for i in range(0,len(network)-1,2):
+            if test2[network[i]]>test2[network[i+1]]:
+                temp = test2[network[i + 1]]
+                test2[network[i + 1]] = test2[network[i]]
+                test2[network[i]] = temp
         for i in range(len(test2)-1):
             if(test2[i]>test2[i+1]):
-                return 1
+                return True
 
-        return 0
+        return False
 
 
     def sort_by_fitness(self, population: list[Struct]):
@@ -76,64 +76,61 @@ class Genetic5:
     def print_sorted(self,network):
         for tests in self.parasites:
             test=tests.arr
-            for i in range(0,len(network)-1):
+            test2 = []
+            for i in test:
+                test2.append(i)
+            for i in range(0, len(network) - 1, 2):
+                if test2[network[i]] > test2[network[i + 1]]:
+                    temp = test2[network[i + 1]]
+                    test2[network[i + 1]] = test2[network[i]]
+                    test2[network[i]] = temp
+            print("sorted array: ",test2)
+    def elitism(self, population: list[Struct], buffer: list[Struct]):
+        flag = 0
+        temp = []
+        while len(temp) < self.esize:
+                temp.append(population[flag])
+                flag += 1
+        # temp = population[:self.esize].copy()
+        self.population[:self.esize] = temp
+        for i in range(self.esize):
+           self.population[i].age += 1
 
-                temp=test[network[i+1]]
-                test[network[i+1]]=test[network[i]]
-                test[network[i]]=temp
-                i += 1
-            print("sorted array: ",test)
-    # def elitism(self, population: list[Struct], buffer: list[Struct]):
-    #     flag = 0
-    #     temp = []
-    #     while len(temp) < self.esize:
-    #         if is_age(population[flag]) & flag < self.args.GA_POPSIZE:
-    #             temp.append(population[flag])
-    #             flag += 1
-    #         else:
-    #             flag += 1
-    #     #temp = population[:self.esize].copy()
-    #     buffer[:self.esize] = temp
-    #     for i in range(self.esize):
-    #         buffer[i].age += 1
-
-    def mate(self, population: list[Struct], buffer: list[Struct]):
-        #self.elitism(self)
+    def mate(self):
+        self.elitism(self.population, self.buffer)
         for i in range(self.esize, self.args.GA_POPSIZE):
+
             i1 = randint(0, (self.args.GA_POPSIZE/2) - 1)
             i2 = randint(0, (self.args.GA_POPSIZE/2) - 1)
-            gene =[]
-            for j in range(0,min(len(population[i1].arr),len(population[i2].arr)),2):
-                # if self.population[i1].str[j-1]<self.tsize:
-                if(j%4==0):
-                  self.population[i1].arr[j]=self.population[i2].arr[j]
-                  self. population[i1].arr[j+1] =self. population[i2].arr[j+1]
 
-
-            self.buffer.append(Struct(gene, 0))
-            #if random.random() < self.args.GA_MUTATION:
-                 #self.mutate(self.buffer[i-1])
+            gene = []
+            for j in range(min(len(self.population[i1].arr),len(self.population[i2].arr))):
+                x =randint(0, sys.maxsize) % 2
+                if x == 0:
+                    gene.append(self.population[i1].arr[j])
+                else:
+                    gene.append(self.population[i2].arr[j])
+            self.population[i] = Struct(gene, 0)
+            if random.random() < self.args.GA_MUTATION:
+                self.mutate(self.population[i])
 
     def mutate(self, member: Struct):
-        ipos = randint(0, member.arr.len()-1,2)
-        member[ipos]=randrange(0,6)
-        member[ipos+1] = randrange(0, 6)
-        # temp=member.str[ipos]
-        # member.str[ipos]=member.str[jpos]
-        # member.str[jpos]=temp
-        # str1 = member.str[:ipos] + chr((ord(member.str[ipos]) + delta) % 122) + member.str[ipos + 1:]
-        # member.str = str1
-        #test
-
-
+        ipos = randint(0,len( member.arr)-1)
+        if ipos%2==1:
+            ipos-=1
+        y=randrange(0,self.nwsize)
+        member.arr[ipos]=y
+        x = randrange(0, self.nwsize)
+        while x==y:
+            x = randrange(0, self.nwsize)
+        member.arr[ipos+1] = x
 
     def print_best(self, gav: list[Struct]):
         print('Best: ', gav[0].arr, '(', str(gav[0].fitness), ')')
 
+
+
     def swap(self, population: list[Struct], buffer: list[Struct]):
         population, buffer = buffer, population
-
-
-
 
 

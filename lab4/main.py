@@ -25,11 +25,12 @@ def run(ga,args1, esize, start_elapsed):
         ga.calc_fitness(ga.population)
 
         ga.sort_by_fitness(ga.population)
+        print("fitness",ga.population[0].fitness)
         ga.print_best(ga.population)
 
         if ga.population[0].fitness == 0 :
             print()
-            print("Best string: " , ga.population[0].arr)
+            print("Best string: ", ga.population[0].arr)
             ga.print_sorted(ga.population[0].arr)
             print(f'found in {i} iterations out of {args1.maxiter}')
             elapsed_time = timer() - start_elapsed
@@ -37,12 +38,9 @@ def run(ga,args1, esize, start_elapsed):
 
             break
 
-        ga.mate(ga.population, ga.buffer)
+        ga.mate()
         clock_ticks = time.time() - iteration_time
         print("Clock ticks time: ", clock_ticks)
-        ga.population,ga.buffer = ga.buffer, ga.population
-
-
 
 def GArun(cross_type):
     start_qt = time.time()  # the start time of clock ticks
@@ -55,7 +53,6 @@ def GArun(cross_type):
     # ga.population = pop_alpha
     # buffer = pop_beta
     ga.init_population()
-    print(ga.population[1])
 
 
     run(ga,args1, esize, start_elapsed)
@@ -65,12 +62,11 @@ def GArun(cross_type):
 
 def get_input():
     popsize = 2048
-    maxIter = 16384
+    maxIter = 200
 
     args = Var(maxIter,popsize,0.1,0.5)
     ARGS=args
     return args
 
 if __name__ == '__main__':
-    print("main")
     GArun(ARGS)
