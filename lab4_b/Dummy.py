@@ -145,7 +145,6 @@ class Flat(RoshamboPlayer):
     def storeMove(self, move, score): pass
 
     def nextMove(self):
-
         self.moves[self.lastmove % 3] += 1
 
         if self.moves[self.ROCK] < self.moves[self.PAPER] and self.moves[self.ROCK] < self.moves[self.SCISSORS]:
