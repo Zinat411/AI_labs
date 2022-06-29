@@ -72,7 +72,7 @@ def GArun(cross_type):
     run(ga, args1, esize, start_elapsed)
 
 def get_input():
-    popsize = 8
+    popsize = 10
     maxIter = 100
     rd = readData()
 

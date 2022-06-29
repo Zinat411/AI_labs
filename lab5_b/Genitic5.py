@@ -1,4 +1,3 @@
-
 import math
 from random import randint, random, randrange
 
@@ -20,14 +19,11 @@ class Genetic5:
         self.population = []
         self.parasites = []
         self.buffer = []
-        
-    
-
 
     def init_population(self):  # create popsize citizens
 
         for i in range(self.args.GA_POPSIZE):  # initialize the agents population
-            array=[]
+            array = []
             depth = random.randint(1, 10)
             for i in range(depth):
                 array.append(random.randint(2, 200))
@@ -36,8 +32,7 @@ class Genetic5:
             else:
                 activate = 'tanh'
 
-
-            agent = Agent(array, 0,NWAgent(depth, array, activate))
+            agent = Agent(array, 0, NWAgent(depth, array, activate))
             self.population.append(agent)
         # ar=self.population[0].arr
         # f = 100
@@ -48,20 +43,17 @@ class Genetic5:
         # self. best.age=age
         # self. best.reg=reg
 
-
     def calc_fitness(self, population: list[Agent]):
         for i in range(self.args.GA_POPSIZE):
-            mlp = MLPClassifier(hidden_layer_sizes=self.population[i].network.hidden, max_iter=30000,
-                                activation=self.population[i].network.activate, solver='adam', random_state=1)
+            mlp = MLPClassifier(hidden_layer_sizes=self.population[i].network.hidden, max_iter=30000,activation=self.population[i].network.activate, solver='adam', random_state=1)
             mlp.fit(self.args.train_x, self.args.train_y)
-            predict = mlp.predict(self.args.test_x)
-            c = confusion_matrix(predict, self.args.test_y)
-            sum = c.sum()
-            dSum = c.trace()
-            self.population[i].fitness = 1-(dSum / sum)
+            conf = confusion_matrix(mlp.predict(self.args.test_x), self.args.test_y)
+            sum = conf.sum()
+            x = conf.trace()
+            self.population[i].fitness = 1 - (x / sum)
             self.population[i].reg = 0
 
-    def result(self, p1, p2): #from lab4
+    def result(self, p1, p2):  # from lab4
         if ((p2 == 0 and p1 == 1) or (p2 == 1 and p1 == 2) or (p2 == 2 and p1 == 0)):
             return 1
         if ((p2 == 0 and p1 == 0) or (p2 == 1 and p1 == 1) or (p2 == 2 and p1 == 2)):
@@ -85,23 +77,20 @@ class Genetic5:
     def mate(self):
         self.elitism(self.population, self.buffer)
         for i in range(self.esize, self.args.GA_POPSIZE):
-            i1 = randint(0, (self.args.GA_POPSIZE/2) - 1)
-            i2 = randint(0, (self.args.GA_POPSIZE/2) - 1)
-           # i1 = self.RWS(population, buffer)[0]
-           # i2 = self.RWS(population, buffer)[0]
-           # i1 = self.tournamentSelection(population)
-           # i2 = self.tournamentSelection(population)
-            spos = random.randint(0, min(self.population[i1].network.depth, self.population[i2].network.depth))
-            self.population[i].network.hidden = self.population[i1].network.hidden[0: spos] + self.population[
-                                                                                              i2].network.hidden[spos:]
-            self.population[i].network.depth = len(self.population[i].network.hidden)
+            i1 = randint(0, (self.args.GA_POPSIZE / 2) - 1)
+            i2 = randint(0, (self.args.GA_POPSIZE / 2) - 1)
+            minsize = min(self.population[i1].network.depth, self.population[i2].network.depth)
+            # i1 = self.RWS(population, buffer)[0]
+            # i2 = self.RWS(population, buffer)[0]
+            # i1 = self.tournamentSelection(population)
+            # i2 = self.tournamentSelection(population)
+
+            pos = random.randint(0, minsize)
+            self.population[i].network.hidden = self.population[i1].network.hidden[0: pos] +self.population[i2].network.hidden[pos:]
+            size=len(self.population[i].network.hidden)
+            self.population[i].network.depth = size
 
 
-            # if random() < self.args.GA_MUTATION:
-            #     self.mutate(self.population[i])
-
-    def mutate(self,member):
-        member.network.hidden[randint(0,member.network.depth)]=random.randint(2, 200)
 
     def commensalism(self):
         for i in range(self.esize, self.args.GA_POPSIZE):
@@ -223,12 +212,11 @@ class Genetic5:
 
     def reg(self):
         for i in range(self.args.GA_POPSIZE):
-            mlp = MLPClassifier(hidden_layer_sizes=self.population[i].network.hidden, max_iter=69000,
-                                activation=self.population[i].network.activateFunction, solver='adam', random_state=1)
-            sum=0
+            mlp = MLPClassifier(hidden_layer_sizes=self.population[i].network.hidden, max_iter=30000,  activation=self.population[i].network.activate, solver='adam', random_state=1)
+            counter = 0
             for j in range(len(mlp.coefs_)):
-                for k in range(len(mlp.coefs_[j])):
-                    sum+=mlp.coefs_[j][k]* mlp.coefs_[j][k]
+                for m in range(len(mlp.coefs_[j])):
+                    counter += mlp.coefs_[j][m] * mlp.coefs_[j][m]
 
-            c= self.cacl_creg(self.population[i])
-            self.population[i].reg=sum*(1/c)*(len(self.args.train_x))
+            calc = self.cacl_creg(self.population[i])
+            self.population[i].reg = counter * (1 / calc) * (len(self.args.train_x))

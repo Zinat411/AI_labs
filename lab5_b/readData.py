@@ -27,7 +27,7 @@ class readData:
         plt.hist(y)
         plt.xlabel('glass types')
         plt.ylabel('num')
-        # plt.show()
+        plt.show()
 
         # X=df.drop(data)
         X=preprocessing.normalize(data)
