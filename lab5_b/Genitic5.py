@@ -210,13 +210,18 @@ class Genetic5:
                 results[par2.getName()] -= round
         print(results)
 
-    def reg(self):
-        for i in range(self.args.GA_POPSIZE):
-            mlp = MLPClassifier(hidden_layer_sizes=self.population[i].network.hidden, max_iter=30000,  activation=self.population[i].network.activate, solver='adam', random_state=1)
-            counter = 0
-            for j in range(len(mlp.coefs_)):
-                for m in range(len(mlp.coefs_[j])):
-                    counter += mlp.coefs_[j][m] * mlp.coefs_[j][m]
+    def regression(self):
 
-            calc = self.cacl_creg(self.population[i])
-            self.population[i].reg = counter * (1 / calc) * (len(self.args.train_x))
+        for pop in self.population:
+            mlp = MLPClassifier(hidden_layer_sizes=self.population[i].network.hidden, max_iter=30000,
+                                activation=self.population[i].network.activate, solver='adam', random_state=1)
+            coef = mlp.coefs_
+            sum = 0
+            mul = 1
+            for i in range(len(coef)):
+                for j in range(len(coef[i])):
+                    sum+=coef[i][j] ** 2
+            for i in range(pop.network.depth):
+                  mul*=pop.network.hidden[i]
+
+        return sum*0.5/(2*len(self.args.train_x))*(1/mul)

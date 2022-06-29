@@ -29,7 +29,7 @@ class readData:
         plt.ylabel('num')
         plt.show()
 
-        X=df.drop(data)
+        # X=df.drop(data)
         X=preprocessing.normalize(data)
         normalized = DataFrame(MinMaxScaler().fit_transform(data))
 
